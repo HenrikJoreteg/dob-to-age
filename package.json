@@ -1,7 +1,7 @@
 {
   "name": "dob-to-age",
   "description": "Determines current age based on a date of birth string YYYY-MM-DD using same weird logic we humans do.",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Henrik Joreteg <henrik@joreteg.com>",
   "bugs": {
     "url": "https://github.com/henrikjoreteg/dob-to-age"
