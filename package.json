@@ -1,7 +1,7 @@
 {
   "name": "dob-to-age",
   "description": "Determines current age based on a date of birth string YYYY-MM-DD using same weird logic we humans do.",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "author": "Henrik Joreteg <henrik@joreteg.com>",
   "bugs": {
     "url": "https://github.com/henrikjoreteg/dob-to-age"
@@ -18,6 +18,10 @@
     "tap-spec": "5.0.0",
     "tape": "5.1.1"
   },
+  "exports": {
+    "import": "./src/dob-to-age.js",
+    "require": "./dist/index.js"
+  },
   "homepage": "https://github.com/henrikjoreteg/dob-to-age",
   "keywords": [
     "age",
@@ -27,10 +31,6 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./src/dob-to-age.js",
-  "exports": {
-    "import": "./src/dob-to-age.js",
-    "require": "./dist/index.js"
-  },
   "prettier": {
     "semi": false,
     "singleQuote": true,
