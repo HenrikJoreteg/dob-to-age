@@ -39,6 +39,7 @@ npm test
 
 ## Change log
 
+- `0.0.2`: Fix publishing issue.
 - `0.0.1`: First public release.
 
 ## credits

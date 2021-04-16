@@ -22,6 +22,10 @@
     "import": "./src/dob-to-age.js",
     "require": "./dist/index.js"
   },
+  "files": [
+    "src",
+    "dist"
+  ],
   "homepage": "https://github.com/henrikjoreteg/dob-to-age",
   "keywords": [
     "age",
