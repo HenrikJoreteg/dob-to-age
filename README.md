@@ -39,6 +39,7 @@ npm test
 
 ## Change log
 
+- `1.0.0`: Successfully consumed in both front end and back end packages. Considered stable.
 - `0.0.2`: Fix publishing issue.
 - `0.0.1`: First public release.
 
