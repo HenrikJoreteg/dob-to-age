@@ -16,7 +16,8 @@
     "prettier-plugin-jsdoc": "0.3.13",
     "rollup": "2.41.1",
     "tap-spec": "5.0.0",
-    "tape": "5.1.1"
+    "tape": "5.1.1",
+    "typescript": "^5.1.6"
   },
   "exports": {
     "import": "./src/dob-to-age.js",
@@ -52,7 +53,8 @@
     "format": "prettier --write .",
     "lint": "eslint ./src .",
     "prepublishOnly": "npm run ci && npm run build",
-    "static": "fixpack && npm run format && npm run lint",
-    "test": "tape -r esm src/**/*.spec.js | tap-spec"
+    "static": "fixpack && npm run format && npm run lint && npm run tsc",
+    "test": "tape -r esm src/**/*.spec.js | tap-spec",
+    "tsc": "tsc -p ."
   }
 }

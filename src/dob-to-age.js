@@ -1,5 +1,5 @@
 /**
- * @param {Date}
+ * @param {Date} date
  * @returns {string} As YYYY-MM-DD
  */
 const dateToString = date =>
@@ -10,7 +10,7 @@ const dateToString = date =>
   ].join('-')
 
 /**
- * @param {string} dateOfBirth In format YYYY or YYYY-MM or YYYY-MM-DD
+ * @param {string} dobString In format YYYY or YYYY-MM or YYYY-MM-DD
  * @returns {number} Number of years old
  */
 export default dobString => {

@@ -26,6 +26,7 @@ test('dobToAge', t => {
   const thisMonthAsString = (new Date().getMonth() + 1 + '').padStart(2, '0')
   const nextMonthAsString = (new Date().getMonth() + 2 + '').padStart(2, '0')
 
+  /** @type {[string, number, string?][]} */
   const variations = [
     [getDateInYear(thisYear, 0), 0, 'current year is always zero'],
     [
