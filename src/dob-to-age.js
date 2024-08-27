@@ -2,33 +2,90 @@
  * @param {Date} date
  * @returns {string} As YYYY-MM-DD
  */
-const dateToString = date =>
-  [
-    date.getFullYear(),
-    (date.getMonth() + 1).toString().padStart(2, '0'),
-    date.getDate().toString().padStart(2, '0'),
-  ].join('-')
+const dateToString = date => date.toISOString().slice(0, 10)
 
+// if more than 59 days, switch to months
+const MAX_DAYS = 59
+// if we're at 24 months we always do years.
+const MAX_MONTHS = 23
+// ms in a day
+const MS_IN_DAY = 1000 * 60 * 60 * 24
+
+const acceptedDobRegex = /^\d{4}(-\d{2}){0,2}$/
 /**
- * @param {string} dobString In format YYYY or YYYY-MM or YYYY-MM-DD
- * @returns {number} Number of years old
+ * Calculates age in years, months, or days based on a date of birth string.
+ *
+ * @param {string} dobString - The date of birth string in format YYYY or
+ *   YYYY-MM or YYYY-MM-DD.
+ * @param {Date} [referenceDate] - The reference date to calculate age from
+ *   (usually the current date).
+ * @returns {{ years?: number; months?: number; days?: number }} - An object
+ *   containing the number of years, months, or days.
  */
-export default dobString => {
-  const now = new Date()
-  const currentYear = now.getFullYear()
-  // by creating both dates using the same mechanism
-  // we can safely compare them without worrying about
-  // timezones, etc.
-  const todayDate = new Date(dateToString(now))
+export default (dobString, referenceDate) => {
+  if (typeof dobString !== 'string' || !acceptedDobRegex.test(dobString)) {
+    return {}
+  }
+  const dobParts = dobString.split('-')
+  if (dobParts.length === 1) {
+    dobString = `${dobString}-01-01`
+  } else if (dobParts.length === 2) {
+    dobString = `${dobString}-01`
+  }
+
+  const currentDateString = dateToString(referenceDate || new Date())
+
+  /** Normalize dates to avoid timezone differences */
+  const currentDate = new Date(currentDateString)
   const birthDate = new Date(dobString)
 
-  // grabbing the number of years
-  const yearsOld = currentYear - birthDate.getFullYear()
+  /** Make sure we have two real dates */
+  if (isNaN(currentDate.valueOf())) {
+    return {}
+  }
+  if (isNaN(birthDate.valueOf())) {
+    return {}
+  }
 
-  // now we modify birthday to be same year as today
-  // so we can do a simple comparison to see if the
-  // day has occurred yet
-  birthDate.setFullYear(currentYear)
+  /**
+   * Calculate the raw # of days difference first. Flooring the resulting value
+   * ensures that we end up with zero indexing. Which is what we want because
+   * that's how we think about age in days. You're 0 days old on your birth day.
+   */
+  const daysDifference = Math.floor(
+    (currentDate.valueOf() - birthDate.valueOf()) / MS_IN_DAY
+  )
 
-  return Math.max(birthDate > todayDate ? yearsOld - 1 : yearsOld, 0)
+  /**
+   * If the days difference is less than the max days we return the days. But we
+   * never return a negative number of days
+   */
+  if (daysDifference <= MAX_DAYS) {
+    return { days: Math.max(daysDifference, 0) }
+  }
+
+  /**
+   * Now turn everything into numbers so we can do normal math without needing
+   * to do worry about timezones, etc.
+   */
+  const [currentYear, currentMonth, currentDay] = currentDateString
+    .split('-')
+    .map(Number)
+  const [birthYear, birthMonth, birthDay] = dobString.split('-').map(Number)
+
+  // Calculate the number of months old
+  let monthsOld = (currentYear - birthYear) * 12 + (currentMonth - birthMonth)
+
+  // If the current day is less than the birth day, we need to subtract a month
+  if (currentDay < birthDay) {
+    monthsOld--
+  }
+
+  // If we're at 24 months we always show the values in years.
+  if (monthsOld > MAX_MONTHS) {
+    return { years: Math.floor(monthsOld / 12) }
+  }
+
+  //  If not, we return the months.
+  return { months: monthsOld }
 }
