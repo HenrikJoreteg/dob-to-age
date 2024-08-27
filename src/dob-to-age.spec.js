@@ -50,11 +50,7 @@ test('dobToAge', t => {
       { years: 4 },
       'tomorrow 5 years ago makes you 4',
     ],
-    [
-      getDateInYear(thisYear, ms.years(1)),
-      { days: 0 },
-      'in the future is also zero',
-    ],
+    [getDateInYear(thisYear, ms.years(1)), {}, 'in the future is also empty'],
     [
       '1950',
       { years: thisYear - 1950 },
@@ -159,8 +155,8 @@ test('dobToAge', t => {
     ['2024-02-29', '2024-04-01', { days: 32 }], // born on leap day
     ['2024-02-29', '2024-04-01', { days: 32 }], // born on leap day
 
-    ['2025-01-01', '2024-01-01', { days: 0 }], // Birthdate is in the future
-    ['2024-12-31', '2024-01-01', { days: 0 }], // Future date within the same year
+    ['2025-01-01', '2024-01-01', {}], // Birthdate is in the future
+    ['2024-12-31', '2024-01-01', {}], // Future date within the same year
 
     // less precise birthdate
     ['2020', '2024-01-01', { years: 4 }], // Only year given, should assume Jan 1

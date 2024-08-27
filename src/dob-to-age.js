@@ -51,17 +51,28 @@ export default (dobString, referenceDate) => {
    * Calculate the raw # of days difference first. Flooring the resulting value
    * ensures that we end up with zero indexing. Which is what we want because
    * that's how we think about age in days. You're 0 days old on your birth day.
+   *
+   * This is the only part of the logic that uses the raw date values.
+   * Everything else is using our weird human logic for this type of thing.
    */
   const daysDifference = Math.floor(
     (currentDate.valueOf() - birthDate.valueOf()) / MS_IN_DAY
   )
 
   /**
+   * If the days difference is negative, we know the birth date is in the future
+   * so we treat this like other error conditions.
+   */
+  if (daysDifference < 0) {
+    return {}
+  }
+
+  /**
    * If the days difference is less than the max days we return the days. But we
-   * never return a negative number of days
+   * never return a negative number of days.
    */
   if (daysDifference <= MAX_DAYS) {
-    return { days: Math.max(daysDifference, 0) }
+    return { days: daysDifference }
   }
 
   /**
@@ -73,15 +84,15 @@ export default (dobString, referenceDate) => {
     .map(Number)
   const [birthYear, birthMonth, birthDay] = dobString.split('-').map(Number)
 
-  // Calculate the number of months old
+  /** Calculate the number of months old */
   let monthsOld = (currentYear - birthYear) * 12 + (currentMonth - birthMonth)
 
-  // If the current day is less than the birth day, we need to subtract a month
+  /** If the current day is less than the birth day, we need to subtract a month */
   if (currentDay < birthDay) {
     monthsOld--
   }
 
-  // If we're at 24 months we always show the values in years.
+  /** If we're over 23 months we always show the values in years. */
   if (monthsOld > MAX_MONTHS) {
     return { years: Math.floor(monthsOld / 12) }
   }
