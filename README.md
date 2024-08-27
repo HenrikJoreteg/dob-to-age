@@ -15,7 +15,25 @@ Instead, human logic says:
 - Always assume same time zone.
 - Assume if the day matches, you are n + 1 years old regardless of time.
 
-So that's what this lib does. See tests cases for more examples.
+Additionally, in medical settings it's semi-standard to counts days up until 59 days, then switch to months. Then return values in months up until 23 months, after that it returns years.
+
+This library matches that (somewhat screwy) logic.
+
+It _always_ returns an object.
+
+The object will have only one of either:
+
+If result should be shown in years:
+
+`{years: 2}`
+
+If result should be shown in months:
+
+`{months: 21}`
+
+If result should be shown in days (because we're under 2 months):
+
+`{days: 18}`
 
 ## install
 
@@ -28,7 +46,9 @@ npm install dob-to-age
 ```js
 import dobToAge from 'dob-to-age'
 
-dobToAge('1982-09-29') // 38 (at time of writing this)
+dobToAge('1982-09-29') // {years: 38} (at time of writing this)
+// can pass a reference date object
+dobToAge('1982-09-29', new Date('1982-10-29')) // {months: 1}
 ```
 
 # test
@@ -39,6 +59,7 @@ npm test
 
 ## Change log
 
+- `2.0.0`: New implementation, returns object of either years, months, or days per semi-standard accepted medical nomenclature. Counts days up until 59 days, then switches to 2 months. Returns values in months until 23 months, then returns years. Ignores timezones, etc. Just returns age in the (somewhat illogical) way we do it as humans.
 - `1.0.0`: Successfully consumed in both front end and back end packages. Considered stable.
 - `0.0.2`: Fix publishing issue.
 - `0.0.1`: First public release.
