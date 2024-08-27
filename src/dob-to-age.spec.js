@@ -201,5 +201,10 @@ test('dobToAge', t => {
     )
   })
 
+  t.ok(
+    dobToAge('2000-09-02', Date.now()).years > 3,
+    'can also take a timestamp'
+  )
+
   t.end()
 })

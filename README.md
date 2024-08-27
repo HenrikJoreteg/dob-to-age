@@ -61,6 +61,7 @@ npm test
 
 ## Change log
 
+- `2.1.0`: Also accept timestamp in milliseconds (as from `Date.now()`) for reference date.
 - `2.0.1`: New implementation, returns null or object of either years, months, or days per semi-standard accepted medical nomenclature. Counts days up until 59 days, then switches to 2 months. Returns values in months until 23 months, then returns years. Ignores timezones, etc. Just returns age in the (somewhat illogical) way we do it as humans.
 - `1.0.0`: Successfully consumed in both front end and back end packages. Considered stable.
 - `0.0.2`: Fix publishing issue.
