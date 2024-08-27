@@ -1,8 +1,28 @@
 /**
+ * Extracts the local date string from a date object.
+ *
+ * If we get an arbitrary "local" date object from the browser, for say "new
+ * Date()" then the year, month, date, will all be in local time. But by turning
+ * it into a string we can then compare it to another timezone-less string like
+ * the dobString and get a consistent result.
+ *
  * @param {Date} date
  * @returns {string} As YYYY-MM-DD
  */
-const dateToString = date => date.toISOString().slice(0, 10)
+const extractLocalDateString = date =>
+  [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+    .map(num => num.toString().padStart(2, '0'))
+    .join('-')
+
+/**
+ * A strange things happens in JS date constructor when you pass a string with
+ * the format 'YYYY-MM-DD'. It will create a date with the correct year, month,
+ * and day, but the time will be set to midnight in UTC.
+ *
+ * @param {string} dateString In format YYYY-MM-DD
+ * @returns {Date}
+ */
+export const dateStringToDate = dateString => new Date(dateString)
 
 // if more than 59 days, switch to months
 const MAX_DAYS = 59
@@ -33,9 +53,20 @@ export default (dobString, referenceDate) => {
     dobString = `${dobString}-01`
   }
 
-  const currentDateString = dateToString(referenceDate || new Date())
+  const currentDateString = extractLocalDateString(referenceDate || new Date())
 
-  /** Normalize dates to avoid timezone differences */
+  /**
+   * Normalize dates to avoid timezone differences. These will both be forced to
+   * be UTC because of how new Date() works in JS. If you don't have any time
+   * elements of a date string it will default to midnight UTC. This is a known
+   * quirky behavior of JS dates:
+   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format
+   *
+   *
+   * But by converting both to UTC by first extracing "local" year/month/date
+   * and turning it into a string we can end up with two UTC dates we can safely
+   * compare them.
+   */
   const currentDate = new Date(currentDateString)
   const birthDate = new Date(dobString)
 

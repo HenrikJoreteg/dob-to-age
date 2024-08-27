@@ -155,6 +155,7 @@ test('dobToAge', t => {
     ['2024-02-29', '2024-03-01', { days: 1 }], // born on leap day
     ['2024-02-29', '2024-04-01', { days: 32 }], // born on leap day
     ['2024-02-29', '2024-04-01', { days: 32 }], // born on leap day
+    ['2024-02-28', '2024-03-31', { days: 32 }], // End of February to end of March
 
     ['2025-01-01', '2024-01-01', {}], // Birthdate is in the future
     ['2024-12-31', '2024-01-01', {}], // Future date within the same year
@@ -167,8 +168,6 @@ test('dobToAge', t => {
     ['2022-12-01', '2024-10-01', { months: 22 }], // Close to 24 months but not yet
 
     ['2024-01-31', '2024-02-28', { days: 28 }], // End of January to end of February in non-leap year
-    ['2024-02-28', '2024-03-31', { days: 32 }], // End of February to end of March
-
     ['2024-01-01', '2024-02-28', { days: 58 }], // One day before the day-to-month switch
     ['2024-01-01', '2024-02-29', { days: 59 }], // Day of the switch
     ['2024-01-01', '2024-03-01', { months: 2 }], // One day after the switch
@@ -187,9 +186,14 @@ test('dobToAge', t => {
     [null, '2024-01-01', {}], // Null input
   ]
 
+  const stringToLocalDate = string => {
+    const parts = string.split('-').map(Number)
+    return new Date(parts[0], parts[1] - 1, parts[2])
+  }
+
   withComparisonDate.forEach(([input, comparisonDate, output]) => {
     t.deepEqual(
-      dobToAge(input, new Date(comparisonDate)),
+      dobToAge(input, stringToLocalDate(comparisonDate)),
       output,
       `${input} should be ${JSON.stringify(
         output
