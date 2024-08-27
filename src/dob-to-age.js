@@ -37,8 +37,8 @@ const acceptedDobRegex = /^\d{4}(-\d{2}){0,2}$/
  *
  * @param {string} dobString - The date of birth string in format YYYY or
  *   YYYY-MM or YYYY-MM-DD.
- * @param {Date} [referenceDate] - The reference date to calculate age from
- *   (usually the current date).
+ * @param {Date | number} [referenceDate] - The reference date to calculate age
+ *   from (usually the current date). Can also be a timestamp in milliseconds.
  * @returns {{ years?: number; months?: number; days?: number }} - An object
  *   containing the number of years, months, or days.
  */
@@ -53,6 +53,9 @@ export default (dobString, referenceDate) => {
     dobString = `${dobString}-01`
   }
 
+  if (typeof referenceDate === 'number') {
+    referenceDate = new Date(referenceDate)
+  }
   const currentDateString = extractLocalDateString(referenceDate || new Date())
 
   /**
