@@ -2,38 +2,40 @@
 
 ![](https://img.shields.io/npm/dm/dob-to-age.svg)![](https://img.shields.io/npm/v/dob-to-age.svg)![](https://img.shields.io/npm/l/dob-to-age.svg)
 
-A single small function for turning a date of birth string as `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` into an "age" in common terms. This is not a simple mathematical calculation based on the number of milliseconds in a year.
+A single small function for turning a date of birth string in the format `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` into an "age" in common terms. This is not a simple mathematical calculation based on the number of milliseconds in a year.
 
-It turns out human logic for "age" is a little weird, this lib tries to match this logic.
+It turns out human logic for "age" is a little weird, and this library tries to match that logic.
 
-For example, if today is April 15, 2021 (`2021-04-15`)
-
-If your birth date is `2000-04-15`, it's your birthday! And regardless of what timezone or time of the day you were born, etc you are considered to be 21 on this day. To get this right, we can't simply use `new Date() - new Date('2000-04-15')` and calculate number of years by dividing whole years.
+For example, let's say today is April 15, 2021 (`2021-04-15`). If your birth date was `2000-04-15`, it's your birthday today! Regardless of what timezone or time of day you were born, you are considered to be 21 on this day. To get this right, we can't simply use `new Date() - new Date('2000-04-15')` and calculate the number of years by dividing by whole years.
 
 Instead, human logic says:
 
-- Always assume same time zone.
-- Assume if the day matches, you are n + 1 years old regardless of time.
+- Always assume the same time zone.
+- Assume that if the day matches, you are `n + 1` years old, regardless of the time.
 
-Additionally, in medical settings it's semi-standard to counts days up until 59 days, then switch to months. Then return values in months up until 23 months, after that it returns years.
+Additionally, in medical settings, it's semi-standard to count days up until 59 days and then switch to months. The values are returned in months up until 23 months; after that, they are returned in years.
 
 This library matches that (somewhat screwy) logic.
 
 It _always_ returns an object.
 
-The object will have only one of either:
+The object will have only one of the following:
 
-If result should be shown in years:
+If the result should be shown in years:
 
 `{years: 2}`
 
-If result should be shown in months:
+If the result should be shown in months:
 
 `{months: 21}`
 
-If result should be shown in days (because we're under 2 months):
+If the result should be shown in days (because we're under 2 months):
 
 `{days: 18}`
+
+If it gets any invalid input or errors, it will fail silently and just return an empty object. This is to make it easy to handle the result for rendering an age.
+
+`{}`
 
 ## install
 
