@@ -50,7 +50,7 @@ test('dobToAge', t => {
       { years: 4 },
       'tomorrow 5 years ago makes you 4',
     ],
-    [getDateInYear(thisYear, ms.years(1)), {}, 'in the future is also empty'],
+    [getDateInYear(thisYear, ms.years(1)), null, 'in the future is also empty'],
     [
       '1950',
       { years: thisYear - 1950 },
@@ -157,8 +157,8 @@ test('dobToAge', t => {
     ['2024-02-29', '2024-04-01', { days: 32 }], // born on leap day
     ['2024-02-28', '2024-03-31', { days: 32 }], // End of February to end of March
 
-    ['2025-01-01', '2024-01-01', {}], // Birthdate is in the future
-    ['2024-12-31', '2024-01-01', {}], // Future date within the same year
+    ['2025-01-01', '2024-01-01', null], // Birthdate is in the future
+    ['2024-12-31', '2024-01-01', null], // Future date within the same year
 
     // less precise birthdate
     ['2020', '2024-01-01', { years: 4 }], // Only year given, should assume Jan 1
@@ -175,15 +175,15 @@ test('dobToAge', t => {
     ['2022-02-01', '2024-01-31', { months: 23 }], // One day before switching to years
     ['2022-03', '2024-01-01', { months: 22 }], // assumes beginning of month for less precise date
 
-    ['Invalid Date', '2024-01-01', {}], // Invalid date format
-    ['20222', '2024-01-01', {}], // Invalid date format
-    ['2022-', '2024-01-01', {}], // Invalid date format
-    ['2022-3', '2024-01-01', {}], // Invalid date format
-    ['abcd', '2024-01-01', {}], // Completely non-numeric input
-    ['2024-13-01', '2024-01-01', {}], // Invalid month
-    ['2024-01-32', '2024-01-01', {}], // Invalid day
+    ['Invalid Date', '2024-01-01', null], // Invalid date format
+    ['20222', '2024-01-01', null], // Invalid date format
+    ['2022-', '2024-01-01', null], // Invalid date format
+    ['2022-3', '2024-01-01', null], // Invalid date format
+    ['abcd', '2024-01-01', null], // Completely non-numeric input
+    ['2024-13-01', '2024-01-01', null], // Invalid month
+    ['2024-01-32', '2024-01-01', null], // Invalid day
 
-    [null, '2024-01-01', {}], // Null input
+    [null, '2024-01-01', null], // Null input
   ]
 
   const stringToLocalDate = string => {

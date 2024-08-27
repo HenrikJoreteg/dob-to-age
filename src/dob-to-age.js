@@ -44,7 +44,7 @@ const acceptedDobRegex = /^\d{4}(-\d{2}){0,2}$/
  */
 export default (dobString, referenceDate) => {
   if (typeof dobString !== 'string' || !acceptedDobRegex.test(dobString)) {
-    return {}
+    return null
   }
   const dobParts = dobString.split('-')
   if (dobParts.length === 1) {
@@ -72,10 +72,10 @@ export default (dobString, referenceDate) => {
 
   /** Make sure we have two real dates */
   if (isNaN(currentDate.valueOf())) {
-    return {}
+    return null
   }
   if (isNaN(birthDate.valueOf())) {
-    return {}
+    return null
   }
 
   /**
@@ -95,7 +95,7 @@ export default (dobString, referenceDate) => {
    * so we treat this like other error conditions.
    */
   if (daysDifference < 0) {
-    return {}
+    return null
   }
 
   /**

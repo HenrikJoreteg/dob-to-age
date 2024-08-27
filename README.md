@@ -17,9 +17,9 @@ Additionally, in medical settings, it's semi-standard to count days up until 59 
 
 This library matches that (somewhat screwy) logic.
 
-It _always_ returns an object.
+It returns an object with values or `null`
 
-The object will have only one of the following:
+The object returned will have only one of the following:
 
 If the result should be shown in years:
 
@@ -33,9 +33,9 @@ If the result should be shown in days (because we're under 2 months):
 
 `{days: 18}`
 
-If it gets any invalid input or errors, it will fail silently and just return an empty object. This is to make it easy to handle the result for rendering an age.
+If it gets any invalid input or errors, it will fail silently and just return null
 
-`{}`
+`null`
 
 ## install
 
@@ -61,7 +61,7 @@ npm test
 
 ## Change log
 
-- `2.0.0`: New implementation, returns object of either years, months, or days per semi-standard accepted medical nomenclature. Counts days up until 59 days, then switches to 2 months. Returns values in months until 23 months, then returns years. Ignores timezones, etc. Just returns age in the (somewhat illogical) way we do it as humans.
+- `2.0.1`: New implementation, returns null or object of either years, months, or days per semi-standard accepted medical nomenclature. Counts days up until 59 days, then switches to 2 months. Returns values in months until 23 months, then returns years. Ignores timezones, etc. Just returns age in the (somewhat illogical) way we do it as humans.
 - `1.0.0`: Successfully consumed in both front end and back end packages. Considered stable.
 - `0.0.2`: Fix publishing issue.
 - `0.0.1`: First public release.
