@@ -50,7 +50,7 @@ import dobToAge from 'dob-to-age'
 
 dobToAge('1982-09-29') // {years: 38} (at time of writing this)
 // can pass a reference date object
-dobToAge('1982-09-29', new Date('1982-10-29')) // {months: 1}
+dobToAge('1982-09-29', new Date('1982-10-29')) // {days: 30}
 ```
 
 # test
