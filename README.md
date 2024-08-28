@@ -15,7 +15,9 @@ Instead, human logic says:
 
 Additionally, in medical settings, it's semi-standard to count days up until 59 days and then switch to months. The values are returned in months up until 23 months; after that, they are returned in years.
 
-This library matches that (somewhat screwy) logic.
+This also, means that there are certain scenarios where you can be at 60 days, but not actually two full calendar months. From '2024-03-01' to '2024-04-30' is 60 days, but not 2 full calendar months. This library (unless you pass `{forceCalendarUnit: "months"}`) will return `2` months for this time period, even though it's not technically 2 full calendar months. After this point, however, it will use calendar months. So it won't return 3 months until '2024-06-01'.
+
+This library tries to encapsulate all that (somewhat screwy) logic. If you do want to force the outcome to be a particular calendar unit you can pass an option to do so (see section below).
 
 It returns an object with values or `null`
 
@@ -37,6 +39,14 @@ If it gets any invalid input or errors, it will fail silently and just return nu
 
 `null`
 
+## Forcing it to specific calendar unit
+
+It's possible to pass a `forcedCalendarUnit` option to specify a specific calendar unit for the outcome.
+
+Please note that using this will expose some of the oddities of the fact that calendar units are different lengths depending on the year (due to leap days) or months (due to different month lengths).
+
+Therefore, if you want to force a certain unit like months, you can, but just note that it's using calendar month. Meaning that even though from '2024-03-01' to '2024-04-30' is 60 days, if you pass `{forceCalendarUnit: 'months'}` the answer will be `{count: 1, unit: months}`. If you're wanting "age" for the sake of doing some type of scientific math, you're better off using `{forceCalendarUnit: 'days'}` for the sake of precision.
+
 ## install
 
 ```
@@ -50,7 +60,11 @@ import dobToAge from 'dob-to-age'
 
 dobToAge('1982-09-29') // {count: 38, unit: 'years'} (at time of writing this)
 // can pass a reference date object
-dobToAge('1982-09-29', new Date('1982-10-29')) // {count: 30, unit: 'days'}
+dobToAge('1982-09-29', { referenceDate: new Date('1982-10-29') }) // {count: 30, unit: 'days'}
+dobToAge('1982-09-29', {
+  referenceDate: new Date('1982-10-29'),
+  forcedCalendarUnit: 'years',
+}) // {count: 0, unit: 'years'}
 ```
 
 # test
@@ -61,6 +75,7 @@ npm test
 
 ## Change log
 
+- `4.0.0`: Changed structure of second argument to be an options object. Now supports forcing the output to specific unit (`'years' | 'months' | 'days'`).
 - `3.0.0`: Updated response object to be `{count: number, unit: 'years' | 'months' | 'days'}` to make it easier to format results however you want without having to check for existence of properties of the result.
 - `2.1.0`: Also accept timestamp in milliseconds (as from `Date.now()`) for reference date.
 - `2.0.1`: New implementation, returns null or object of either years, months, or days per semi-standard accepted medical nomenclature. Counts days up until 59 days, then switches to 2 months. Returns values in months until 23 months, then returns years. Ignores timezones, etc. Just returns age in the (somewhat illogical) way we do it as humans.

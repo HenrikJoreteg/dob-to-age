@@ -2,6 +2,11 @@ import test from 'tape'
 import dobToAge from './dob-to-age'
 import ms from 'milliseconds'
 
+const stringToLocalDate = string => {
+  const parts = string.split('-').map(Number)
+  return new Date(parts[0], parts[1] - 1, parts[2])
+}
+
 test('dobToAge', t => {
   const padTwo = num => (num + '').padStart(2, '0')
   const toDateString = date =>
@@ -162,6 +167,7 @@ test('dobToAge', t => {
     ['1982-09-29', '1982-10-29', { count: 30, unit: 'days' }],
 
     // weird cases:
+    ['2024-03-01', '2024-04-30', { count: 2, unit: 'months' }], // this is 60 days, but not actually two full calendar months we still show 2 months
     ['2024-02-29', '2024-03-01', { count: 1, unit: 'days' }], // born on leap day
     ['2024-02-29', '2024-04-01', { count: 32, unit: 'days' }], // born on leap day
     ['2024-02-29', '2024-04-01', { count: 32, unit: 'days' }], // born on leap day
@@ -196,14 +202,9 @@ test('dobToAge', t => {
     [null, '2024-01-01', null], // Null input
   ]
 
-  const stringToLocalDate = string => {
-    const parts = string.split('-').map(Number)
-    return new Date(parts[0], parts[1] - 1, parts[2])
-  }
-
   withComparisonDate.forEach(([input, comparisonDate, output]) => {
     t.deepEqual(
-      dobToAge(input, stringToLocalDate(comparisonDate)),
+      dobToAge(input, { referenceDate: stringToLocalDate(comparisonDate) }),
       output,
       `${input} should be ${JSON.stringify(
         output
@@ -212,8 +213,118 @@ test('dobToAge', t => {
   })
 
   t.ok(
-    dobToAge('2000-09-02', Date.now()).count > 3,
+    dobToAge('2000-09-02', { referenceDate: Date.now() }).count > 3,
     'can also take a timestamp'
+  )
+
+  t.end()
+})
+
+test('dobToAge with forced unit', t => {
+  /**
+   * @type {[
+   *   dob: string,
+   *   referenceDate: string,
+   *   forcedCalendarUnit: 'years' | 'months' | 'days',
+   *   expectedCount: number
+   * ][]}
+   */
+  const cases = [
+    // force answer in days
+    ['2024-01-31', '2024-02-28', 'days', 28],
+    ['2024-01-31', '2024-02-29', 'days', 29],
+    ['2024-01-31', '2024-03-01', 'days', 30], // includes for leap day
+    ['2024-01-01', '2025-01-01', 'days', 366], // includes leap day
+    ['2025-01-01', '2026-01-01', 'days', 365], // does not include leap day on year that doesn't have it
+    ['2024-01-01', '2024-01-01', 'days', 0],
+    ['2024-01-31', '2024-05-28', 'days', 118],
+    // includes multiple leap years when relevant
+    ['2000-02-29', '2004-02-28', 'days', 1460],
+    ['2000-02-29', '2004-02-29', 'days', 1461],
+
+    // force answer in years
+    ['2024-01-01', '2024-12-31', 'years', 0], // handles end of year
+    ['2024-01-01', '2024-01-01', 'years', 0], // handles same day
+    ['2024-01-01', '2025-01-01', 'years', 1], // uses calendar days to tick over into 1 year.
+    ['2023-01-01', '2023-12-31', 'years', 0], // still works on non-leap year
+    ['2023-01-01', '2024-01-01', 'years', 1], // still works on non-leap year
+
+    // force answer in months
+    ['2024-01-01', '2024-01-31', 'months', 0],
+    ['2024-01-01', '2024-02-01', 'months', 1],
+    ['2024-01-01', '2024-02-29', 'months', 1],
+    ['2024-01-01', '2024-03-01', 'months', 2],
+    ['2024-01-01', '2024-12-31', 'months', 11],
+    ['2024-01-01', '2025-01-01', 'months', 12],
+    ['2024-01-01', '2025-01-02', 'months', 12],
+    ['2024-01-01', '2025-02-01', 'months', 13],
+    ['2024-01-01', '2025-02-28', 'months', 13],
+    ['2024-01-01', '2025-03-01', 'months', 14],
+    ['2024-01-01', '2025-12-31', 'months', 23],
+    ['2024-01-01', '2026-01-01', 'months', 24],
+    ['2024-01-01', '2026-01-02', 'months', 24],
+    ['2024-01-01', '2026-02-01', 'months', 25],
+    ['2024-01-01', '2026-02-28', 'months', 25],
+    ['2024-01-01', '2026-03-01', 'months', 26],
+    ['2024-01-01', '2026-12-31', 'months', 35],
+    ['2024-01-01', '2027-01-01', 'months', 36],
+    ['2024-01-01', '2027-01-02', 'months', 36],
+    ['2024-01-01', '2027-02-01', 'months', 37],
+    ['2024-01-01', '2027-02-28', 'months', 37],
+    ['2024-01-01', '2027-03-01', 'months', 38],
+    // can handle really large number of months
+    ['2024-01-01', '2054-01-01', 'months', 360],
+  ]
+
+  cases.forEach(([dob, referenceDate, forcedCalendarUnit, expectedCount]) => {
+    t.deepEqual(
+      dobToAge(dob, {
+        referenceDate: stringToLocalDate(referenceDate),
+        forcedCalendarUnit,
+      }).count,
+      expectedCount,
+      `${dob} should be ${expectedCount} when forced to ${forcedCalendarUnit}`
+    )
+  })
+
+  // handle rollover from days to months
+  const dob = '2024-03-01'
+  const referenceDate = '2024-04-30'
+
+  /**
+   * @type {[
+   *   forcedCalendarUnit: 'years' | 'months' | 'days',
+   *   expectedCount: number,
+   *   expectedUnit: 'years' | 'months' | 'days',
+   *   description: string
+   * ][]}
+   */
+  const rolloverCases = [
+    [
+      null,
+      2,
+      'months',
+      'when not receiving a forcedCalendarUnit we round 60 days to 2 months despite not being calendar days',
+    ],
+    [
+      'months',
+      1,
+      'months',
+      'when forcing to months we do not round, because we are explicitly asking for calendarMonths and we are not yet at 2 full calendar months.',
+    ],
+  ]
+
+  rolloverCases.forEach(
+    ([forcedCalendarUnit, expectedCount, expectedUnit, description]) => {
+      t.deepEqual(
+        dobToAge(dob, {
+          referenceDate: stringToLocalDate(referenceDate),
+          forcedCalendarUnit,
+        }),
+        { count: expectedCount, unit: expectedUnit },
+        description
+      )
+    }
   )
 
   t.end()
