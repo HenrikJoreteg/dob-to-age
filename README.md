@@ -37,6 +37,14 @@ If it gets any invalid input or errors, it will fail silently and just return nu
 
 `null`
 
+## Forcing it to specific unit
+
+It's possible to pass a `forcedCalendarUnit` option to specify a specific unit for the outcome.
+
+Please note that using this will expose some of the oddities of calendar units being different lengths depending on the year (due to leap days) or months (due to different month lengths).
+
+Therefore, if you want to force a certain unit like months, you can, but just note that it's using calendar month. Meaning that even though from '2024-03-01' to '2024-04-30' is 60 days, if you pass `{forceCalendarUnit: 'months'}` the answer will be `{count: 1, unit: months}`. If you're wanting "age" for the sake of doing some type of math, you're better off getting calendar days and counting those.
+
 ## install
 
 ```
@@ -50,7 +58,11 @@ import dobToAge from 'dob-to-age'
 
 dobToAge('1982-09-29') // {count: 38, unit: 'years'} (at time of writing this)
 // can pass a reference date object
-dobToAge('1982-09-29', new Date('1982-10-29')) // {count: 30, unit: 'days'}
+dobToAge('1982-09-29', { referenceDate: new Date('1982-10-29') }) // {count: 30, unit: 'days'}
+dobToAge('1982-09-29', {
+  referenceDate: new Date('1982-10-29'),
+  forcedCalendarUnit: 'years',
+}) // {count: 0, unit: 'years'}
 ```
 
 # test
@@ -61,6 +73,7 @@ npm test
 
 ## Change log
 
+- `4.0.0`: Changed structure of second argument to be an options object. Now supports forcing the output to specific unit (`'years' | 'months' | 'days'`).
 - `3.0.0`: Updated response object to be `{count: number, unit: 'years' | 'months' | 'days'}` to make it easier to format results however you want without having to check for existence of properties of the result.
 - `2.1.0`: Also accept timestamp in milliseconds (as from `Date.now()`) for reference date.
 - `2.0.1`: New implementation, returns null or object of either years, months, or days per semi-standard accepted medical nomenclature. Counts days up until 59 days, then switches to 2 months. Returns values in months until 23 months, then returns years. Ignores timezones, etc. Just returns age in the (somewhat illogical) way we do it as humans.

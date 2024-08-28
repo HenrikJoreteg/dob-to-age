@@ -37,12 +37,14 @@ const acceptedDobRegex = /^\d{4}(-\d{2}){0,2}$/
  *
  * @param {string} dobString - The date of birth string in format YYYY or
  *   YYYY-MM or YYYY-MM-DD.
- * @param {Date | number} [referenceDate] - The reference date to calculate age
- *   from (usually the current date). Can also be a timestamp in milliseconds.
+ * @param {{
+ *   referenceDate?: Date | number
+ *   forcedCalendarUnit?: 'years' | 'months' | 'days'
+ * }} [options]
  * @returns {{ count: number; unit: 'years' | 'months' | 'days' } | null} - An
  *   object containing the count and unit of age, or null if the input is invalid.
  */
-export default (dobString, referenceDate) => {
+export default (dobString, { referenceDate, forcedCalendarUnit } = {}) => {
   if (typeof dobString !== 'string' || !acceptedDobRegex.test(dobString)) {
     return null
   }
@@ -105,7 +107,10 @@ export default (dobString, referenceDate) => {
    * If the days difference is less than the max days we return the days. But we
    * never return a negative number of days.
    */
-  if (daysDifference <= MAX_DAYS) {
+  if (
+    forcedCalendarUnit === 'days' ||
+    (!forcedCalendarUnit && daysDifference <= MAX_DAYS)
+  ) {
     return { count: daysDifference, unit: 'days' }
   }
 
@@ -126,11 +131,25 @@ export default (dobString, referenceDate) => {
     monthsOld--
   }
 
-  /** If we're over 23 months we always show the values in years. */
-  if (monthsOld > MAX_MONTHS) {
+  /** If we're over 23 months we show the values in years . */
+  if (
+    forcedCalendarUnit === 'years' ||
+    (!forcedCalendarUnit && monthsOld > MAX_MONTHS)
+  ) {
     return { count: Math.floor(monthsOld / 12), unit: 'years' }
   }
 
-  //  If not, we return the months.
+  /**
+   * If we're not forcing units, we should never return < 2 months. This helps
+   * the rollover from 59 days to 2 months for scenarios where the calendar
+   * month would otherwise put us at one month. It would tick from 59 days to 1
+   * month which seems quite broken. So we force it to 2 months, but only in the
+   * case where we're not forcing it to a specific unit.
+   */
+  if (!forcedCalendarUnit && monthsOld < 2) {
+    return { count: 2, unit: 'months' }
+  }
+
+  /** If not, we return the unedited months. */
   return { count: monthsOld, unit: 'months' }
 }
