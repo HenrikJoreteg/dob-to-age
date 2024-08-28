@@ -39,8 +39,8 @@ const acceptedDobRegex = /^\d{4}(-\d{2}){0,2}$/
  *   YYYY-MM or YYYY-MM-DD.
  * @param {Date | number} [referenceDate] - The reference date to calculate age
  *   from (usually the current date). Can also be a timestamp in milliseconds.
- * @returns {{ years?: number; months?: number; days?: number }} - An object
- *   containing the number of years, months, or days.
+ * @returns {{ count: number; unit: 'years' | 'months' | 'days' } | null} - An
+ *   object containing the count and unit of age, or null if the input is invalid.
  */
 export default (dobString, referenceDate) => {
   if (typeof dobString !== 'string' || !acceptedDobRegex.test(dobString)) {
@@ -106,7 +106,7 @@ export default (dobString, referenceDate) => {
    * never return a negative number of days.
    */
   if (daysDifference <= MAX_DAYS) {
-    return { days: daysDifference }
+    return { count: daysDifference, unit: 'days' }
   }
 
   /**
@@ -128,9 +128,9 @@ export default (dobString, referenceDate) => {
 
   /** If we're over 23 months we always show the values in years. */
   if (monthsOld > MAX_MONTHS) {
-    return { years: Math.floor(monthsOld / 12) }
+    return { count: Math.floor(monthsOld / 12), unit: 'years' }
   }
 
   //  If not, we return the months.
-  return { months: monthsOld }
+  return { count: monthsOld, unit: 'months' }
 }
